@@ -129,6 +129,7 @@ canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
       <button class="btn b-ghost" id="btnBot">+ Agregar bot</button>
       <button class="btn b-lime" id="btnStart">¡Empezar!</button>
     </div>
+    <div class="wait" id="hostMsg">Tú eres el host: deja esta pestaña abierta mientras juegan.</div>
     <div class="wait hidden" id="waitMsg">Esperando a que el host empiece…</div>
     <div class="how"><b>Cómo se juega:</b> muévete con <b>WASD</b> o flechas (en el cel, arrastra el dedo). <b>Espacio</b> = embestida. Sácalos de la arena. Si te caes, eres fantasma: <b>clic</b> para soltar meteoritos. Tumbar a alguien = +1, ganar la ronda = +2. 5 rondas.</div>
     <button class="btn b-ghost" id="btnLeave">Salir</button>
@@ -208,6 +209,7 @@ function renderLobby(){
   $('#btnShare').classList.toggle('hidden',net.practice||!net.code);
   $('#hostCtl').classList.toggle('hidden',!net.isHost);
   $('#waitMsg').classList.toggle('hidden',net.isHost);
+  $('#hostMsg').classList.toggle('hidden',!net.isHost);
   const pl=$('#plist');pl.innerHTML='';
   lobby.forEach(l=>{const d=document.createElement('div');d.className='pl';
     d.innerHTML=`<span class="dot" style="background:${l.color};color:${l.color}"></span>${esc(l.name)}<small>${l.id==='host'?'host':l.id===net.myId?'tú':l.bot?'bot':''}</small>`;
@@ -402,7 +404,7 @@ function snap(){
 // bucle del host: física a 60 Hz, envía a 30 Hz (setInterval sigue corriendo aunque minimices un poco)
 let acc=0,last=performance.now(),tick=0;
 setInterval(()=>{
-  const now=performance.now();let dt=Math.min(.1,(now-last)/1000);last=now;
+  const now=performance.now();let dt=Math.min(.5,(now-last)/1000);last=now;
   if(!net.isHost||!G)return;
   acc+=dt;while(acc>=1/60){step(1/60);acc-=1/60}
   if(++tick%2===0){const s=snap();G.ev=[];applySnap(s);broadcast(s)}
